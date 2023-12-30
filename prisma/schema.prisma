@@ -1,0 +1,310 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id              String            @id @default(uuid())
+  name            String            @db.Text
+  email           String            @unique
+  password        String            @db.Text
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  image           String            @db.Text
+  role            String            @default("admin")
+  status          String            @default("pending")
+  address         String            @db.Text
+  number          String            @db.Text
+  Serices         Serices[]
+  AdminSocialLink AdminSocialLink[]
+  Gigs            Gigs[]
+  Category        Category[]
+}
+
+model Serices {
+  id             String    @id @default(uuid())
+  title          String
+  description    String
+  services_title String
+  adminUser      AdminUser @relation(fields: [adminUserId], references: [id])
+  adminUserId    String
+}
+
+model AdminSocialLink {
+  id          String    @id @default(uuid())
+  name        String
+  icon        String
+  link        String    @db.Text
+  adminUser   AdminUser @relation(fields: [adminUserId], references: [id])
+  adminUserId String
+}
+
+model Gigs {
+  id          String    @id @default(uuid())
+  title       String
+  description String    @db.Text
+  size        String
+  fileFormat  String
+  image       String    @db.Text
+  folder      Int
+  subFolder   Int
+  industry    String
+  design      String
+  wordCount   Int?      @default(0)
+  createAt    DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  tagsCount   Int?      @default(0)
+  adminUser   AdminUser @relation(fields: [adminUserId], references: [id])
+  adminUserId String
+  Tags        Tags[]
+  Category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String
+  Order       Order[]
+  Cart        Cart[]
+}
+
+model Tags {
+  id     String @id @default(uuid())
+  name   String
+  gigs   Gigs   @relation(fields: [gigsId], references: [id])
+  gigsId String
+}
+
+model Category {
+  id          String        @id @default(uuid())
+  title       String
+  image       String        @db.Text
+  createAt    DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  folder      Int
+  SubCategory SubCategory[]
+  Order       Order[]
+  adminUser   AdminUser     @relation(fields: [adminUserId], references: [id])
+  adminUserId String
+  Gigs        Gigs[]
+  bulletPoint bulletPoint[]
+}
+
+model SubCategory {
+  id           String         @id @default(uuid())
+  title        String
+  amount       Int
+  deleveryTime String         @default("2 Days")
+  category     Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId   String
+  FastDelivery FastDelivery[]
+}
+
+model FastDelivery {
+  id            String      @id @default(uuid())
+  amount        Int
+  deleveryTime  String      @default("1 Day")
+  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
+  subCategoryId String
+}
+
+model bulletPoint {
+  id         String   @id @default(uuid())
+  itemOne    String?
+  itemTwo    String?
+  itemThree  String?
+  categoryId String
+  Category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model Contact {
+  id            String          @id @default(uuid())
+  name          String
+  email         String
+  mediaLink     String
+  message       String
+  createdAt     DateTime        @default(now())
+  ExampleDesign ExampleDesign[]
+}
+
+model ExampleDesign {
+  id        String  @id @default(uuid())
+  title     String
+  image     String  @db.Text
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  contactId String
+}
+
+model adminSocialMedia {
+  id String @id @default(uuid())
+}
+
+model adminSocialMediaItem {
+  id   String @id @default(uuid())
+  name String
+  icon String
+}
+
+model StockImage {
+  id    String @id @default(uuid())
+  title String
+  image String @db.Text
+  url   String @db.Text
+}
+
+model HomeBanner {
+  id           String @id @default(uuid())
+  adminName    String
+  serviceTitle String
+  title        String
+  solgan       String @db.Text
+  image        String @db.Text
+}
+
+model About {
+  id                   String   @id @default(uuid())
+  title                String
+  titleDescription     String
+  subTitle1            String
+  subTitle1Description String
+  subTitle2            String
+  subTitle2Description String
+  subTitle3            String
+  subTitle3Description String
+  createAt             DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model TreamsCondition {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  createAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RefundPolicy {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  createAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PrivacyPolicy {
+  id            String   @id @default(uuid())
+  title         String
+  description   String   @db.Text
+  subTitle1     String
+  subTitleDesc1 String   @db.Text
+  subTitle2     String
+  subTitleDesc2 String   @db.Text
+  createAt      DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Customer {
+  id                 String               @id @default(uuid())
+  name               String
+  email              String               @unique
+  password           String
+  location           String?
+  description        String               @db.Text
+  image              String               @db.Text
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  language           String               @default("English")
+  status             String               @default("active")
+  role               String               @default("customer")
+  userName           String?
+  address            String?
+  country            String?
+  city               String?
+  number             String?
+  industryName       String?
+  CustomerSocialLink CustomerSocialLink[]
+  Testimonial        Testimonial[]
+  Order              Order[]
+  Payment            Payment[]
+  Cart               Cart[]
+}
+
+model CustomerSocialLink {
+  id         String   @id @default(uuid())
+  name       String
+  icon       String
+  url        String   @db.Text
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+}
+
+model Testimonial {
+  id         String   @id @default(uuid())
+  rating     Int
+  feedback   String   @db.Text
+  createAt   DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+}
+
+model Order {
+  id           String    @id @default(uuid())
+  amount       String
+  deleveryTime String    @default("2 Days")
+  createAt     DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  status       String    @default("waiting")
+  gig          Gigs      @relation(fields: [gigsId], references: [id], onDelete: Cascade)
+  gigsId       String
+  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId   String
+  customer     Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId   String
+  Payment      Payment[]
+}
+
+model Cart {
+  id            String    @id @default(uuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  customerEmail String
+  isSelected    Boolean   @default(false)
+  gig           Gigs      @relation(fields: [gigsId], references: [id], onDelete: Cascade)
+  gigsId        String
+  Customer      Customer? @relation(fields: [customerId], references: [id])
+  customerId    String?
+}
+
+model Requirement {
+  id                 String  @id @default(uuid())
+  itemOne            String
+  itemTwo            String
+  itemTwoAttachment  String?
+  itemThree          String
+  itemFour           String
+  itemFourAttachment String?
+  itemFive           String
+  itemSix            String
+  itemSixAttachment  String?
+}
+
+model Conversation {
+  id String @id @default(uuid())
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  firstName     String
+  lastName      String
+  transactionId String
+  amount        String
+  createAt      DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId    String
+  Order         Order?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId       String?
+}
